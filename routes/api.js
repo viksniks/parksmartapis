@@ -33,6 +33,8 @@ router.post("/register", (req, res) => {
   let userData = req.body;
   let newUser = new User(userData);
   User.findOne({ email: userData.email }, (err, user) => {
+    console.log(user);
+    console.log(err);
     if (err) {
       console.log(err);
       res.send(err);
@@ -41,18 +43,19 @@ router.post("/register", (req, res) => {
     if (user) {
       res.status(400).send("This email has already been registered");
     } else {
-      bcrypt.hash(userData.password, 10, (err, hash) => {
-        newUser.password = hash;
-        newUser.save((err, registeredUser) => {
+      // bcrypt.hash(userData.password, 10, (err, hash) => {
+      //   console.log(hash);
+      //   newUser.password = hash;
+        newUser.save(() => {
           if (err) {
             res.status(500).send("Error in registering new user");
           } else {
             res
               .status(200)
-              .send(registeredUser.fullName + " " + "registered successfully");
+              .send(newUser.fullName + " " + "registered successfully");
           }
         });
-      });
+     // });
     }
   });
 });
@@ -60,22 +63,26 @@ router.post("/register", (req, res) => {
 // login api
 router.post("/login", (req, res) => {
   let userData = req.body;
-  User.findOne({ email: userData.email }, (error, user) => {
+  User.findOne({ email: userData.email,password:userData.password }, (error, user) => {
     if (error) {
       console.log(error);
+      res.send(JSON.stringify(error));
     } else {
       if (!user) {
-        res.status(401).send("Email you have entered is incorrect");
+        res.status(401).send("wrong credentials!");
       } else {
-        bcrypt.compare(userData.password, user.password, (err, loggedIn) => {
-          if (loggedIn) {
-            let payload = { subject: user._id };
-            let token = jwt.sign(payload, "secretKey");
-            res.status(200).send({ token });
-          } else {
-            res.sendStatus(403);
-          }
-        });
+        res.send(JSON.stringify(user));
+        // bcrypt.compare(userData.password, user.password, (err, loggedIn) => {
+        //   console.log(loggedIn);
+        //   if (loggedIn) {
+        //     let payload = { subject: user._id };
+        //     let token = jwt.sign(payload, "secretKey");
+        //     console.log(token);
+        //     res.status(200).send({ token });
+        //   } else {
+        //     res.sendStatus(403);
+        //   }
+        // });
       }
     }
   });
