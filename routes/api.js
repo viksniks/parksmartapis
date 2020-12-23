@@ -31,6 +31,7 @@ mongoose.connect(
 // register api
 router.post("/register", (req, res) => {
   let userData = req.body;
+  console.log(userData);
   let newUser = new User(userData);
   User.findOne({ email: userData.email }, (err, user) => {
     console.log(user);
