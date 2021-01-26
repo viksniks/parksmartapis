@@ -8,9 +8,22 @@ const PORT = 3000;
 const app = express();
 
 // middlewares
+
+app.use(bodyParser.json({
+  limit: '50mb'
+}));
+
+app.use(bodyParser.urlencoded({
+  limit: '50mb',
+  parameterLimit: 100000,
+  extended: true 
+}));
 app.use(cors());
-app.use(bodyParser.json());
 app.use("/api", api);
+app.use('/public/images', express.static(__dirname + '/public/images'));
+//app.use(bodyParser.json());
+
+
 
 
 app.listen(PORT, () => {

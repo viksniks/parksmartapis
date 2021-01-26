@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const User = require("../models/user");
+const Rent = require("../models/rentspace")
 const Image = require("../models/parking-areas");
 const Parking = require("../models/parking-area-new");
 const passwordResetToken = require("../models/resettoken");
@@ -306,7 +307,61 @@ router.post("/insertParkingArea", (req, res) => {
   
 })
 
+router.post("/insertImages", (req, res) => {
 
+  
+  let imgbase = req.body.imgbase;
+	let timestamp = Date.now().toString();
+	
+	if(imgbase)
+	{
+		let arr = imgbase.split(',');
+
+		fs.writeFile("public/images/"+timestamp+".png",arr[1],'base64',function(err)
+		{
+if(err)
+{
+  res.send(err);
+}
+else{
+  res.send("public/images/"+timestamp+".png");
+}
+		})
+	}
+})
+
+router.post("/insertRentSpace", (req, res) => {
+
+  let rent = new Rent(req.body);
+  rent.save().then((result)=>{
+    res.send(result);
+  },(err)=>{
+    res.send(err);
+  })
+
+  
+  
+})
+
+router.get("/getRentSpace", (req, res) => {
+  let email = req.query.email;
+  Rent.find({ email: email }, (error, rentspaces) => {
+    if (error) {
+      res.status(404).send(error);
+    } else {
+      res.status(200).send(rentspaces);
+    }
+  });
+});
+
+router.get("/deleteRentSpace", (req, res) => {
+  Rent.deleteOne({email:req.query.email}, err => {
+    if (err) {
+      res.status(500).send();
+    }
+    return res.status(200).send();
+  });
+});
 
   router.get("/getParkingArea", (req, res) => {
     Parking.find({}, (err, parkings) => {
